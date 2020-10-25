@@ -1,0 +1,76 @@
+---
+title: "CodeBook"
+author: "Ya Hsin Tsai"
+date: "10/25/2020"
+output: html_document
+---
+
+(for explanation of my "Peer-graded Assignment: Getting and Cleaning Data Course Project")
+
+The project adopted "Human Activity Recognition Using Smartphones Data Set" from UCI Machine Learning Repository.
+
+```{r}
+train.label <- read.table("features.txt", sep = " ")
+test.label <- read.table("activity_labels.txt", sep=" ")
+X.train <- read.table("X_train.txt")
+y.train <- read.table("y_train.txt", sep=" ")
+X.test <- read.table("X_test.txt")
+y.test <- read.table("y_test.txt", sep = " ")
+```
+
+all needed data sets are red in the project with labels for train and test data sets.
+
+## 1. Merges the training and the test sets to create one data set.
+```{r}
+train <- cbind(X.train, y.train)
+test <- cbind(X.test, y.test)
+dt <- rbind(train, test)
+View(dt)
+```
+
+I first cbind train sets and test sets for they have different column length, and then I rbind train and test to make all data in a set named dt.
+
+## 2. Extracts only the measurements on the mean and standard deviation for each measurement.
+```{r}
+col.no.means <-  grep("mean[^Freq]()", train.label[, 2]) ## mean
+dt.means <- dt[, col.no.means]
+View(dt.means)
+col.no.std <- grep("std()", train.label[, 2]) ## std
+dt.std <- dt[, col.no.std]
+View(dt.std)
+```
+
+I first extract the number of columns which has to do with mean through regex, then I match these numbers to dt to find wanted columns; process is the same for that of standard deviation.
+
+## 3. Uses descriptive activity names to name the activities in the data set
+```{r}
+for (i in 1:nrow(dt)){
+  dt[i, 562] <- test.label[dt[i, 562], 2] 
+}
+View(dt[, 562])
+```
+
+I replace all numeric data in the last column with their corresponding activities in character.
+
+## 4. Appropriately labels the data set with descriptive variable names.
+```{r}
+dt.descriptive <- dt
+colnames(dt.descriptive) <- c(train.label[,2], "activities")
+View(dt.descriptive)
+```
+
+Here I made a new data frame called dt.descriptive and assign column names from train.label.
+
+## 5. From the data set in step 4, creates a second, independent tidy data set 
+## with the average of each variable for each activity and each subject.
+```{r}
+ave.by.activities <- as.data.frame(matrix(nrow=561, ncol=6)) ## empty data frame for averages by activities
+for (i in 1:length(test.label[,2])){
+  tmp <- dt.descriptive[dt.descriptive[, 562]==test.label[i,2], ] #by activities
+  ave.by.activities[, i] <- colMeans(tmp[, -c(562)])
+}
+colnames(ave.by.activities) <- test.label[,2]
+View(ave.by.activities)
+```
+
+I first created a matrix of 561 rows and 6 columns then transform it to data frame named ave.by.activities. I then substracted data of each activities to tmp, calculated averages of each variable through colMeans, and returned results. I also added column names to ave.by.activities
