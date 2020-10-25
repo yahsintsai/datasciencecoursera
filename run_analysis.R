@@ -40,3 +40,5 @@ for (i in 1:length(test.label[,2])){
 }
 colnames(ave.by.activities) <- test.label[,2]
 View(ave.by.activities)
+
+write.table(ave.by.activities, file="tidy_dataset.txt", row.name=FALSE)
