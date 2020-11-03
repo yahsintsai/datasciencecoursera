@@ -1,8 +1,10 @@
 #setwd("/Users/yahsintsai/Downloads/UCI HAR Dataset")
 train.label <- read.table("features.txt", sep = " ")
 test.label <- read.table("activity_labels.txt", sep=" ")
+#setwd("/Users/yahsintsai/Downloads/UCI HAR Dataset/train")
 X.train <- read.table("X_train.txt")
 y.train <- read.table("y_train.txt", sep=" ")
+#setwd("/Users/yahsintsai/Downloads/UCI HAR Dataset/test")
 X.test <- read.table("X_test.txt")
 y.test <- read.table("y_test.txt", sep = " ")
 
@@ -33,12 +35,7 @@ View(dt.descriptive)
 
 ## 5. From the data set in step 4, creates a second, independent tidy data set 
 ## with the average of each variable for each activity and each subject.
-ave.by.activities <- as.data.frame(matrix(nrow=561, ncol=6)) ## empty data frame for averages by activities
-for (i in 1:length(test.label[,2])){
-  tmp <- dt.descriptive[dt.descriptive[, 562]==test.label[i,2], ] #by activities
-  ave.by.activities[, i] <- colMeans(tmp[, -c(562)])
-}
-colnames(ave.by.activities) <- test.label[,2]
+ave.by.activities <- aggregate(dt.descriptive[, 1:561], list(dt.descriptive$activities), mean)
 View(ave.by.activities)
 
-write.table(ave.by.activities, file="tidy_dataset.txt", row.name=FALSE)
+write.table(ave.by.activities, file="tidy_dataset.txt")
